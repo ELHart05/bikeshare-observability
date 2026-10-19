@@ -1,0 +1,14 @@
+{
+  "name": "bikeshare-observability",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Orchestration shortcuts for the bikeshare-observability demo. Angular dependencies live in frontend/.",
+  "type": "module",
+  "scripts": {
+    "fleet": "node scripts/start.mjs fleet",
+    "rentals": "node scripts/start.mjs rentals",
+    "frontend": "cd frontend && npm start",
+    "observability": "docker compose -f observability/docker-compose.yml up -d",
+    "evidence": "node scripts/capture-evidence.mjs"
+  }
+}

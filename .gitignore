@@ -1,0 +1,36 @@
+# Build artifacts
+target/
+build/
+out/
+bin/
+dist/
+*.class
+*.jar
+
+# Frontend dependencies and caches
+node_modules/
+.angular/
+out-tsc/
+
+# OpenTelemetry Java agent: downloaded, never committed
+opentelemetry-javaagent*.jar
+opentelemetry-javaagent.jar.part
+
+# IDE and OS metadata
+.idea/
+.settings/
+.vscode/
+.project
+.classpath
+.factorypath
+*.iml
+.DS_Store
+Thumbs.db
+
+# Local logs
+*.log
+
+# Service logs, browser walkthrough output, Collector comparison and captured evidence
+logs/
+observability/comparison/
+evidence/
