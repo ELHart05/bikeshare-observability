@@ -1,0 +1,44 @@
+<table>
+  <thead>
+    <tr>
+      <th>Station</th>
+      <th>Code</th>
+      <th>Bikes</th>
+      <th>Docks</th>
+      <th>Status</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (station of stations(); track station.code) {
+      <tr>
+        <td>{{ station.name }}</td>
+        <td><code>{{ station.code }}</code></td>
+        <td>{{ station.availableBikes }}</td>
+        <td>{{ station.capacity }}</td>
+        <td>
+          @if (station.outOfService) {
+            <span class="out-of-service">out of service</span>
+          } @else if (station.availableBikes === 0) {
+            <span class="empty">no bikes</span>
+          } @else {
+            <span class="open">open</span>
+          }
+        </td>
+        <td>
+          <button
+            type="button"
+            [disabled]="busy()"
+            (click)="rent.emit(station.code)"
+          >
+            Rent
+          </button>
+        </td>
+      </tr>
+    } @empty {
+      <tr>
+        <td colspan="6">no stations loaded</td>
+      </tr>
+    }
+  </tbody>
+</table>

@@ -1,0 +1,48 @@
+h2 {
+  margin: 1.8rem 0 0.6rem;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--navy);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.pending {
+  color: var(--navy-light);
+  font-size: 0.9rem;
+}
+
+.success,
+.failure {
+  margin: 0.9rem 0 0;
+  padding: 0.55rem 0.8rem;
+  border-left: 3px solid var(--green);
+  background: var(--white);
+  font-size: 0.9rem;
+}
+
+.failure {
+  border-left-color: var(--coral);
+}
+
+.report {
+  margin: 0;
+  padding: 0.7rem 0.8rem 0.7rem 2rem;
+  background: var(--white);
+  font-size: 0.9rem;
+}
+
+code {
+  color: var(--navy-light);
+}
+
+.trace {
+  margin: 0.25rem 0;
+  font-size: 0.8rem;
+  color: var(--navy-light);
+}

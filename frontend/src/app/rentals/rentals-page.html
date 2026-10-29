@@ -1,0 +1,52 @@
+<section class="toolbar">
+  <button type="button" [disabled]="busy()" (click)="refresh()">
+    Refresh
+  </button>
+  @if (busy()) {
+    <span class="pending">request in progress…</span>
+  }
+</section>
+
+@let r = result();
+@if (r.state === 'success') {
+  <p class="success">{{ r.message }}</p>
+} @else if (r.state === 'failure') {
+  <p class="failure">
+    <strong>{{ r.failure.category }}</strong>
+    @if (r.failure.status) {
+      (HTTP {{ r.failure.status }})
+    }
+    - {{ r.failure.message }}
+  </p>
+}
+
+@if (trace()) {
+  <p class="trace">trace <code>{{ trace() }}</code></p>
+}
+
+<h2>Stations</h2>
+<app-station-list
+  [stations]="stations()"
+  [busy]="busy()"
+  (rent)="rent($event)"
+/>
+
+<h2>Rentals</h2>
+<app-rental-list
+  [rentals]="rentals()"
+  [stations]="stations()"
+  [busy]="busy()"
+  (returnBike)="returnBike($event)"
+  (report)="viewReport($event)"
+/>
+
+@let rep = report();
+@if (rep) {
+  <h2>Latest report</h2>
+  <ul class="report">
+    <li>rental <code>{{ rep.reference }}</code></li>
+    <li>start station <code>{{ rep.startStation }}</code></li>
+    <li>turnover index {{ rep.turnoverIndex }} %</li>
+    <li>{{ rep.rentalsFromStation }} rental(s) opened at this station</li>
+  </ul>
+}

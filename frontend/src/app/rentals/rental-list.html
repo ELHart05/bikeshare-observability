@@ -1,0 +1,59 @@
+<table>
+  <thead>
+    <tr>
+      <th>Reference</th>
+      <th>Bike</th>
+      <th>From</th>
+      <th>To</th>
+      <th>Duration</th>
+      <th>Amount</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (rental of rentals(); track rental.reference) {
+      <tr>
+        <td><code>{{ rental.reference }}</code></td>
+        <td><code>{{ rental.bikeId }}</code></td>
+        <td>{{ rental.startStation }}</td>
+        <td>{{ rental.endStation ?? '-' }}</td>
+        <td>
+          @if (rental.status === 'CLOSED') {
+            {{ rental.durationMinutes }} min
+          } @else {
+            in progress
+          }
+        </td>
+        <td>{{ rental.amount !== null ? rental.amount + ' €' : '-' }}</td>
+        <td class="actions">
+          @if (rental.status === 'ACTIVE') {
+            <button
+              type="button"
+              [disabled]="busy()"
+              (click)="
+                returnBike.emit({
+                  reference: rental.reference,
+                  stationCode: returnStationFor(rental),
+                })
+              "
+            >
+              Return to {{ returnStationFor(rental) }}
+            </button>
+          }
+          <button
+            type="button"
+            class="secondary"
+            [disabled]="busy()"
+            (click)="report.emit(rental.reference)"
+          >
+            Report
+          </button>
+        </td>
+      </tr>
+    } @empty {
+      <tr>
+        <td colspan="7">no rentals</td>
+      </tr>
+    }
+  </tbody>
+</table>

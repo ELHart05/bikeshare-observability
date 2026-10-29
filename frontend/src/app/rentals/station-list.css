@@ -1,0 +1,17 @@
+code {
+  font-size: 0.85rem;
+  color: var(--navy-light);
+}
+
+.out-of-service {
+  color: var(--coral);
+  font-weight: 600;
+}
+
+.empty {
+  color: var(--navy-light);
+}
+
+.open {
+  color: var(--green);
+}
