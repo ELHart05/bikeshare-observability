@@ -1,0 +1,85 @@
+# The Collector receives, processes and exports. Nothing talks to Jaeger directly.
+
+receivers:
+  otlp:
+    protocols:
+      # The Java agents export over gRPC.
+      grpc:
+        endpoint: 0.0.0.0:4317
+      # The browser exports HTTP/JSON. That content type triggers a CORS
+      # preflight, which this receiver must answer. The origin is spelled out:
+      # never "*" on an ingestion endpoint.
+      http:
+        endpoint: 0.0.0.0:4318
+        cors:
+          allowed_origins:
+            - http://localhost:4200
+          max_age: 7200
+
+processors:
+  batch:
+    timeout: 1s
+
+  # The agent copies the client IP address and port, and its user agent, onto
+  # every server span. None of the diagnostics needs them, and an IP address is
+  # personal data. They are removed here, in one place, instead of trusting
+  # every service to do it.
+  attributes/minimize:
+    actions:
+      - { key: client.address, action: delete }
+      - { key: network.peer.address, action: delete }
+      - { key: network.peer.port, action: delete }
+      - { key: user_agent.original, action: delete }
+
+  # The JVM command line travels on every span. It reveals paths on the host,
+  # and a secret passed with -D would leave with it.
+  resource/minimize:
+    attributes:
+      - { key: process.command_args, action: delete }
+
+  # A successful CORS preflight carries no traceparent: it makes a one-span
+  # trace unrelated to the click that caused it. A rejected preflight is a real
+  # symptom of a CORS failure, so it stays.
+  filter/preflight:
+    error_mode: ignore
+    traces:
+      span:
+        - 'attributes["http.request.method"] == "OPTIONS" and attributes["http.response.status_code"] == 200'
+
+  # The agent also exports its own JVM and HTTP metrics. Only the application
+  # metrics are kept, which keeps the series count small and known.
+  filter/app_metrics:
+    error_mode: ignore
+    metrics:
+      metric:
+        - 'not IsMatch(name, "^bikeshare\\.")'
+
+  # The agent draws a random instance id at every JVM start, and Prometheus
+  # turns it into a label: every restart would duplicate every series.
+  # With several replicas, use a stable label instead.
+  resource/drop_instance_id:
+    attributes:
+      - { key: service.instance.id, action: delete }
+
+exporters:
+  otlp_grpc/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+  # Prometheus scrapes this endpoint at a fixed interval.
+  prometheus:
+    endpoint: 0.0.0.0:8889
+  # `docker compose logs collector` shows what comes in, for troubleshooting.
+  debug:
+    verbosity: basic
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [filter/preflight, attributes/minimize, resource/minimize, batch]
+      exporters: [otlp_grpc/jaeger, debug]
+    metrics:
+      receivers: [otlp]
+      processors: [filter/app_metrics, resource/drop_instance_id, batch]
+      exporters: [prometheus]

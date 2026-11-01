@@ -1,0 +1,9 @@
+# Prometheus pulls: it scrapes the Collector, not the other way round.
+# Nothing needs configuring on the application side.
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: collector
+    static_configs:
+      - targets: ["collector:8889"]

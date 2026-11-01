@@ -1,0 +1,37 @@
+# Observability stack: a Collector, Jaeger for traces and Prometheus for metrics.
+# The Java services and the frontend run outside Docker, so the agent attaches
+# to a JVM started by hand and a service can be restarted without touching the
+# infrastructure.
+#
+# Versions are pinned: "latest" would make captured evidence impossible to reproduce.
+name: bikeshare-observability
+
+services:
+  collector:
+    image: otel/opentelemetry-collector:0.162.0
+    command: ["--config=/etc/otel/config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel/config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP/gRPC: the two Java agents
+      - "4318:4318"   # OTLP/HTTP: the browser (with CORS)
+    depends_on:
+      - jaeger
+
+  jaeger:
+    image: jaegertracing/jaeger:2.22.0
+    ports:
+      - "16686:16686" # web UI and query API
+    # Jaeger's OTLP port is not published: only the Collector talks to it.
+    expose:
+      - "4317"
+
+  # Jaeger stores traces, not time series.
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - collector
