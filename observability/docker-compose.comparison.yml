@@ -1,0 +1,9 @@
+# Before/after comparison of Collector processing. See otel-collector-comparison.yaml.
+services:
+  collector:
+    # The output file must belong to whoever runs the comparison (see scripts/compare-collector.mjs).
+    user: "${COLLECTOR_USER:-0}"
+    command: ["--config=/etc/otel/config.yaml", "--config=/etc/otel/comparison.yaml"]
+    volumes:
+      - ./otel-collector-comparison.yaml:/etc/otel/comparison.yaml:ro
+      - ./comparison:/comparison

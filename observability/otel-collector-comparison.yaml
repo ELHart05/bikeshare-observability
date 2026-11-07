@@ -1,0 +1,15 @@
+# Before/after comparison of Collector processing. Merged with the normal
+# configuration by docker-compose.comparison.yml: a second pipeline keeps a copy
+# of the spans as they arrive, before any processing. The same spans, and so the
+# same trace, can then be compared with what Jaeger receives.
+#
+# Do not leave it running: this copy holds exactly what the main pipeline removes.
+exporters:
+  file/raw:
+    path: /comparison/raw.jsonl
+
+service:
+  pipelines:
+    traces/raw:
+      receivers: [otlp]
+      exporters: [file/raw]
