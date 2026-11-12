@@ -7,8 +7,16 @@
  * forwards actions to the store,
  * and shows the result of the latest action.</p>
  */
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 
+import { APP_CONFIGURATION } from '../core/configuration';
 import { RentalList, ReturnSelection } from './rental-list';
 import { RentalsStore } from './rentals-store';
 import { StationList } from './station-list';
@@ -22,6 +30,7 @@ import { StationList } from './station-list';
 })
 export class RentalsPage implements OnInit {
   private readonly store = inject(RentalsStore);
+  private readonly jaegerUrl = inject(APP_CONFIGURATION).jaegerUrl;
 
   readonly stations = this.store.stations;
   readonly rentals = this.store.rentals;
@@ -29,6 +38,14 @@ export class RentalsPage implements OnInit {
   readonly result = this.store.result;
   readonly busy = this.store.busy;
   readonly trace = this.store.trace;
+
+  readonly traceUrl = computed(() => `${this.jaegerUrl}/trace/${this.trace()}`);
+  readonly copied = signal(false);
+
+  /** Name of the report's start station, when the station list has it. */
+  readonly reportStation = computed(
+    () => this.stations().find((s) => s.code === this.report()?.startStation)?.name,
+  );
 
   ngOnInit(): void {
     void this.store.refresh();
@@ -48,5 +65,15 @@ export class RentalsPage implements OnInit {
 
   viewReport(reference: string): void {
     void this.store.viewReport(reference);
+  }
+
+  copyTrace(): void {
+    navigator.clipboard?.writeText(this.trace()).then(
+      () => {
+        this.copied.set(true);
+        setTimeout(() => this.copied.set(false), 1500);
+      },
+      () => {},
+    );
   }
 }

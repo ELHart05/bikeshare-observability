@@ -1,17 +1,162 @@
-code {
-  font-size: 0.85rem;
-  color: var(--navy-light);
+.sheet {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
 }
 
-.out-of-service {
-  color: var(--coral);
+.name {
+  width: 32%;
+}
+
+.station-name {
   font-weight: 600;
 }
 
-.empty {
-  color: var(--navy-light);
+.occupancy {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
 }
 
-.open {
-  color: var(--green);
+/* The dock strip: one cell per dock, filled when a bike is in it. */
+.strip {
+  display: flex;
+  gap: 2px;
+  flex: none;
+  min-width: calc(var(--max, 0) * (0.5rem + 2px));
+}
+
+.strip i {
+  width: 0.5rem;
+  height: 1.25rem;
+  border: 1px solid var(--dock-line);
+  border-radius: 2px;
+  background: var(--dock);
+}
+
+.strip i.bike {
+  background: var(--bike);
+  border-color: var(--bike);
+}
+
+.out .strip i {
+  background: repeating-linear-gradient(-45deg, var(--rule-strong) 0 1.5px, transparent 1.5px 4px);
+  border-color: var(--rule-strong);
+}
+
+.out .strip i.bike {
+  background: var(--ink-3);
+  border-color: var(--ink-3);
+}
+
+.counts {
+  font-size: 0.875rem;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.counts strong {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.out .station-name,
+.out .counts strong {
+  color: var(--ink-2);
+}
+
+.state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.state::before {
+  content: "";
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 1px;
+}
+
+.state-open {
+  color: var(--bike);
+}
+
+.state-open::before {
+  background: var(--bike);
+}
+
+.state-empty {
+  color: var(--warn);
+}
+
+.state-empty::before {
+  border: 2px solid var(--warn);
+}
+
+.state-out {
+  color: var(--stop);
+}
+
+.state-out::before {
+  background: var(--stop);
+  transform: rotate(45deg);
+}
+
+.action {
+  text-align: right;
+  width: 1%;
+}
+
+@media (max-width: 44rem) {
+  thead {
+    position: absolute;
+    clip: rect(0 0 0 0);
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "name status"
+      "occupancy action";
+    align-items: center;
+    gap: 0.6rem 0.75rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  td {
+    padding: 0;
+    border: 0;
+    width: auto;
+  }
+
+  .name { grid-area: name; width: auto; }
+  td:has(.occupancy) { grid-area: occupancy; }
+  .status { grid-area: status; text-align: right; }
+  .action { grid-area: action; width: auto; }
+
+  .occupancy {
+    flex-wrap: wrap;
+    gap: 0.4rem 0.75rem;
+  }
+
+  .strip {
+    min-width: 0;
+  }
+
+  .empty-row {
+    grid-column: 1 / -1;
+  }
 }

@@ -1,52 +1,136 @@
-<section class="toolbar">
-  <button type="button" [disabled]="busy()" (click)="refresh()">
-    Refresh
-  </button>
-  @if (busy()) {
-    <span class="pending">request in progress…</span>
-  }
-</section>
+<header class="band">
+  <div class="band-inner">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true">
+        <rect width="32" height="32" rx="4" fill="var(--bike)" />
+        <g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="9" cy="20" r="4.5" />
+          <circle cx="23" cy="20" r="4.5" />
+          <path d="M9 20l4-8h7l3 8M13 12l3 8h-7M12 9h3M20 12l-1-3h2.5" />
+        </g>
+      </svg>
+      <div>
+        <h1>Bike share</h1>
+        <p>Stations, rentals and one trace per click</p>
+      </div>
+    </div>
+    <button type="button" class="on-band" [disabled]="busy()" (click)="refresh()">
+      <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+        <path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" fill="none" stroke="currentColor"
+          stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      Refresh
+    </button>
+  </div>
+</header>
 
-@let r = result();
-@if (r.state === 'success') {
-  <p class="success">{{ r.message }}</p>
-} @else if (r.state === 'failure') {
-  <p class="failure">
-    <strong>{{ r.failure.category }}</strong>
-    @if (r.failure.status) {
-      (HTTP {{ r.failure.status }})
-    }
-    - {{ r.failure.message }}
-  </p>
-}
+<main class="layout">
+  <aside class="side">
+    <section class="panel result" aria-labelledby="result-title">
+      <h2 id="result-title">Last action</h2>
 
-@if (trace()) {
-  <p class="trace">trace <code>{{ trace() }}</code></p>
-}
+      <div class="outcome" role="status" aria-live="polite">
+        @let r = result();
+        @if (busy()) {
+          <p class="pending"><span class="spinner" aria-hidden="true"></span>Request in progress</p>
+        } @else if (r.state === 'success') {
+          <p class="success">
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+              <path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span>{{ r.message }}</span>
+          </p>
+        } @else if (r.state === 'failure') {
+          <div class="failure">
+            <p class="failure-kind">
+              {{ r.failure.category }}
+              @if (r.failure.status) {
+                (HTTP {{ r.failure.status }})
+              }
+            </p>
+            <p class="failure-message">{{ r.failure.message }}</p>
+          </div>
+        } @else {
+          <p class="idle">No action yet.</p>
+        }
+      </div>
 
-<h2>Stations</h2>
-<app-station-list
-  [stations]="stations()"
-  [busy]="busy()"
-  (rent)="rent($event)"
-/>
+      @if (trace()) {
+        <div class="trace">
+          <span class="trace-label">Trace id</span>
+          <code>{{ trace() }}</code>
+          <div class="trace-actions">
+            <button type="button" class="secondary small" (click)="copyTrace()">
+              {{ copied() ? 'Copied' : 'Copy' }}
+            </button>
+            <a class="button secondary small" [href]="traceUrl()" target="_blank" rel="noopener">
+              Open in Jaeger
+              <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+                <path d="M6 3H3v10h10v-3M9 3h4v4M13 3L7 9" fill="none" stroke="currentColor"
+                  stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span class="visually-hidden">(opens in a new tab)</span>
+            </a>
+          </div>
+        </div>
+      }
+    </section>
 
-<h2>Rentals</h2>
-<app-rental-list
-  [rentals]="rentals()"
-  [stations]="stations()"
-  [busy]="busy()"
-  (returnBike)="returnBike($event)"
-  (report)="viewReport($event)"
-/>
+    <section class="panel report" aria-labelledby="report-title">
+      <h2 id="report-title">Station report</h2>
+      @let rep = report();
+      @if (rep) {
+        <p class="report-for">
+          Rental <code>{{ rep.reference }}</code>, started at
+          {{ reportStation() ?? rep.startStation }} <code>{{ rep.startStation }}</code>
+        </p>
+        <p class="figure">{{ rep.turnoverIndex }}<span> %</span></p>
+        <p class="figure-label">Turnover index: share of the station's bikes available</p>
+        <div class="meter" aria-hidden="true">
+          <span [style.width.%]="rep.turnoverIndex > 100 ? 100 : rep.turnoverIndex"></span>
+        </div>
+        <p class="report-count">
+          {{ rep.rentalsFromStation }}
+          {{ rep.rentalsFromStation === 1 ? 'rental' : 'rentals' }} opened at this station
+        </p>
+      } @else {
+        <p class="idle">Choose Report on a rental to see its start station's turnover.</p>
+      }
+    </section>
+  </aside>
 
-@let rep = report();
-@if (rep) {
-  <h2>Latest report</h2>
-  <ul class="report">
-    <li>rental <code>{{ rep.reference }}</code></li>
-    <li>start station <code>{{ rep.startStation }}</code></li>
-    <li>turnover index {{ rep.turnoverIndex }} %</li>
-    <li>{{ rep.rentalsFromStation }} rental(s) opened at this station</li>
-  </ul>
-}
+  <section class="block stations" aria-labelledby="stations-title">
+    <div class="block-head">
+      <h2 id="stations-title">
+        Stations
+        @if (stations().length) {
+          <span class="count">{{ stations().length }}</span>
+        }
+      </h2>
+      <p class="legend" aria-hidden="true">
+        <span class="key bike"></span>Bike available
+        <span class="key"></span>Dock
+      </p>
+    </div>
+    <app-station-list [stations]="stations()" [busy]="busy()" (rent)="rent($event)" />
+  </section>
+
+  <section class="block rentals" aria-labelledby="rentals-title">
+    <div class="block-head">
+      <h2 id="rentals-title">
+        Rentals
+        @if (rentals().length) {
+          <span class="count">{{ rentals().length }}</span>
+        }
+      </h2>
+    </div>
+    <app-rental-list
+      [rentals]="rentals()"
+      [stations]="stations()"
+      [busy]="busy()"
+      (returnBike)="returnBike($event)"
+      (report)="viewReport($event)"
+    />
+  </section>
+</main>

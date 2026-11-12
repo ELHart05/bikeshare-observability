@@ -1,13 +1,75 @@
-/* Global styles: plain and high-contrast. */
+/*
+ * Global styles: tokens, type, buttons, tables.
+ *
+ * Direction: station-post signage. A dark band at the top, quiet surfaces,
+ * one strong colour (the bike green of the dock strip) and plain rules.
+ */
 :root {
-  --ink: #1b2b3a;
-  --navy: #002c50;
-  --navy-light: #2c5a82;
-  --coral: #b8333b;
-  --green: #1e7a5e;
-  --background: #f3f6f9;
-  --border: #e1e8ee;
-  --white: #ffffff;
+  color-scheme: light dark;
+
+  --bg: #eef0f1;
+  --surface: #ffffff;
+  --sunken: #f5f6f7;
+  --ink: #16202a;
+  --ink-2: #4b5864;
+  --ink-3: #66717b;
+  --rule: #d6dbdf;
+  --rule-strong: #b6bec5;
+
+  --band: #16202a;
+  --band-ink: #ffffff;
+  --band-ink-2: #b9c3cc;
+
+  --bike: #0b7a5f;
+  --bike-soft: #e3f2ed;
+  --dock: #ffffff;
+  --dock-line: #aab3bb;
+
+  --stop: #b3261e;
+  --stop-soft: #fbeceb;
+  --warn: #8a5300;
+  --warn-soft: #fdf1df;
+
+  --button: #16202a;
+  --button-ink: #ffffff;
+  --focus: #1a66d2;
+
+  --font-sans: "Segoe UI Variable Text", "Segoe UI", Frutiger, "Frutiger Neue", "IBM Plex Sans",
+    "Helvetica Neue", "Noto Sans", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas,
+    "DejaVu Sans Mono", monospace;
+  --radius: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a1f24;
+    --surface: #22282e;
+    --sunken: #1e2429;
+    --ink: #e7ebee;
+    --ink-2: #aab4bd;
+    --ink-3: #8b96a0;
+    --rule: #343c44;
+    --rule-strong: #4a535c;
+
+    --band: #0f1418;
+    --band-ink: #f1f4f6;
+    --band-ink-2: #9aa6b0;
+
+    --bike: #3cc39b;
+    --bike-soft: #183a31;
+    --dock: #22282e;
+    --dock-line: #5d6872;
+
+    --stop: #f28b82;
+    --stop-soft: #3a2422;
+    --warn: #e9b55a;
+    --warn-soft: #36301f;
+
+    --button: #e7ebee;
+    --button-ink: #16202a;
+    --focus: #7fb0ff;
+  }
 }
 
 * {
@@ -16,20 +78,67 @@
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.45;
   color: var(--ink);
-  background: var(--background);
-  line-height: 1.5;
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
 }
 
-button {
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+button,
+.button {
   font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.2;
   cursor: pointer;
-  border: 1px solid var(--navy);
-  background: var(--navy);
-  color: var(--white);
-  border-radius: 3px;
-  padding: 0.35rem 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.125rem;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--button);
+  border-radius: var(--radius);
+  background: var(--button);
+  color: var(--button-ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+button:hover:not(:disabled),
+.button:hover {
+  filter: brightness(1.15);
+}
+
+button.secondary,
+.button.secondary {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--rule-strong);
+}
+
+button.secondary:hover:not(:disabled),
+.button.secondary:hover {
+  filter: none;
+  border-color: var(--ink-2);
+  background: var(--sunken);
 }
 
 button:disabled {
@@ -37,27 +146,74 @@ button:disabled {
   cursor: not-allowed;
 }
 
-button.secondary {
-  background: var(--white);
-  color: var(--navy);
+.button.small,
+button.small {
+  min-height: 1.875rem;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.8125rem;
+}
+
+button svg,
+.button svg {
+  flex: none;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  background: var(--white);
-}
-
-th,
-td {
-  text-align: left;
-  padding: 0.5rem 0.6rem;
-  border-bottom: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
 }
 
 th {
+  text-align: left;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink-3);
+  padding: 0.55rem 1rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+td {
+  text-align: left;
+  vertical-align: middle;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* A station named by its place, with its code under it. */
+.place {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.place code {
+  color: var(--ink-3);
   font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--navy-light);
+}
+
+.empty-row {
+  color: var(--ink-2);
+  padding: 1.25rem 1rem;
+}
+
+/* A quiet note where there is nothing to show yet. */
+.idle {
+  color: var(--ink-2);
 }

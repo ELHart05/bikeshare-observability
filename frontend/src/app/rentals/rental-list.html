@@ -1,59 +1,79 @@
-<table>
-  <thead>
-    <tr>
-      <th>Reference</th>
-      <th>Bike</th>
-      <th>From</th>
-      <th>To</th>
-      <th>Duration</th>
-      <th>Amount</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    @for (rental of rentals(); track rental.reference) {
+<div class="sheet">
+  <table>
+    <caption class="visually-hidden">Rentals, active first</caption>
+    @if (rentals().length) {
+    <thead>
       <tr>
-        <td><code>{{ rental.reference }}</code></td>
-        <td><code>{{ rental.bikeId }}</code></td>
-        <td>{{ rental.startStation }}</td>
-        <td>{{ rental.endStation ?? '-' }}</td>
-        <td>
-          @if (rental.status === 'CLOSED') {
-            {{ rental.durationMinutes }} min
-          } @else {
-            in progress
-          }
-        </td>
-        <td>{{ rental.amount !== null ? rental.amount + ' €' : '-' }}</td>
-        <td class="actions">
-          @if (rental.status === 'ACTIVE') {
+        <th scope="col">Rental</th>
+        <th scope="col">Route</th>
+        <th scope="col" class="num">Trip</th>
+        <th scope="col"><span class="visually-hidden">Actions</span></th>
+      </tr>
+    </thead>
+    }
+    <tbody>
+      @for (rental of ordered(); track rental.reference) {
+        @let active = rental.status === 'ACTIVE';
+        <tr [class.active]="active">
+          <td class="ref">
+            <span class="ref-line">
+              <code class="reference">{{ rental.reference }}</code>
+              <span class="tag" [class.tag-active]="active">{{ active ? 'Active' : 'Closed' }}</span>
+            </span>
+            <span class="bike-id">Bike <code>{{ rental.bikeId }}</code></span>
+          </td>
+          <td class="route">
+            <span class="leg">
+              {{ nameOf(rental.startStation) }} <code>{{ rental.startStation }}</code>
+            </span>
+            @if (rental.endStation) {
+              <span class="leg">
+                to {{ nameOf(rental.endStation) }} <code>{{ rental.endStation }}</code>
+              </span>
+            } @else {
+              <span class="leg muted">Not returned yet</span>
+            }
+          </td>
+          <td class="num trip">
+            @if (active) {
+              <span class="muted">In progress</span>
+            } @else {
+              <span class="leg">{{ rental.durationMinutes }} min</span>
+              @if (rental.amount !== null) {
+                <span class="leg">{{ rental.amount | number: '1.2-2' }} €</span>
+              }
+            }
+          </td>
+          <td class="actions">
+            @if (active) {
+              <button
+                type="button"
+                [disabled]="busy()"
+                (click)="
+                  returnBike.emit({
+                    reference: rental.reference,
+                    stationCode: returnStationFor(rental),
+                  })
+                "
+              >
+                Return to {{ returnStationFor(rental) }}
+              </button>
+            }
             <button
               type="button"
+              class="secondary"
               [disabled]="busy()"
-              (click)="
-                returnBike.emit({
-                  reference: rental.reference,
-                  stationCode: returnStationFor(rental),
-                })
-              "
+              (click)="report.emit(rental.reference)"
             >
-              Return to {{ returnStationFor(rental) }}
+              Report
             </button>
-          }
-          <button
-            type="button"
-            class="secondary"
-            [disabled]="busy()"
-            (click)="report.emit(rental.reference)"
-          >
-            Report
-          </button>
-        </td>
-      </tr>
-    } @empty {
-      <tr>
-        <td colspan="7">no rentals</td>
-      </tr>
-    }
-  </tbody>
-</table>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="4" class="empty-row">No rentals yet. Rent a bike at an open station.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

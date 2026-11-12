@@ -1,10 +1,164 @@
-code {
-  font-size: 0.85rem;
-  color: var(--navy-light);
+.sheet {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+}
+
+tr.active td:first-child {
+  box-shadow: inset 3px 0 0 var(--bike);
+}
+
+tr:not(.active) {
+  color: var(--ink-2);
+}
+
+.ref {
+  white-space: nowrap;
+}
+
+.leg {
+  display: block;
+}
+
+.leg code {
+  font-size: 0.75rem;
+  color: var(--ink-3);
+  margin-left: 0.2rem;
+}
+
+th,
+td {
+  padding-inline: 0.75rem;
+}
+
+th:first-child,
+td:first-child {
+  padding-left: 1rem;
+}
+
+th:last-child,
+td:last-child {
+  padding-right: 1rem;
+}
+
+.bike-id {
+  display: block;
+  margin-top: 0.15rem;
+}
+
+.ref-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reference {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+  color: var(--ink-2);
+}
+
+.tag-active {
+  color: var(--bike);
+  border-color: var(--bike);
+  background: var(--bike-soft);
+}
+
+.bike-id {
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+td code {
+  white-space: nowrap;
+}
+
+.muted {
+  color: var(--ink-3);
 }
 
 .actions {
-  display: flex;
-  gap: 0.4rem;
-  justify-content: flex-end;
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.actions button + button {
+  margin-left: 0.4rem;
+}
+
+@media (max-width: 44rem) {
+  thead {
+    position: absolute;
+    clip: rect(0 0 0 0);
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "ref trip"
+      "route route"
+      "actions actions";
+    gap: 0.5rem 0.75rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  tr.active {
+    box-shadow: inset 3px 0 0 var(--bike);
+  }
+
+  tr.active td:first-child {
+    box-shadow: none;
+  }
+
+  tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  td,
+  td:first-child,
+  td:last-child {
+    padding: 0;
+    border: 0;
+  }
+
+  .ref { grid-area: ref; }
+  .route { grid-area: route; }
+  .trip { grid-area: trip; }
+
+  .actions {
+    grid-area: actions;
+    width: auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.4rem;
+  }
+
+  .actions button + button {
+    margin-left: 0;
+  }
+
+  .empty-row {
+    grid-column: 1 / -1;
+  }
 }

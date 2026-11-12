@@ -19,6 +19,9 @@ export interface AppConfiguration {
   readonly serviceName: string;
 
   readonly serviceVersion: string;
+
+  /** Jaeger UI, for the "Open in Jaeger" link next to each trace id. */
+  readonly jaegerUrl: string;
 }
 
 export const APP_CONFIGURATION = new InjectionToken<AppConfiguration>(
@@ -31,5 +34,6 @@ export function defaultConfiguration(): AppConfiguration {
     otlpTracesUrl: 'http://localhost:4318/v1/traces',
     serviceName: 'bikeshare-frontend',
     serviceVersion: '1.0.0',
+    jaegerUrl: 'http://localhost:16686',
   };
 }

@@ -1,5 +1,5 @@
 /**
- * The application shell: a title and the page.
+ * The application shell: the page.
  *
  * <p>No router, since there is only one page.</p>
  */

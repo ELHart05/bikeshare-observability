@@ -1,44 +1,65 @@
-<table>
-  <thead>
-    <tr>
-      <th>Station</th>
-      <th>Code</th>
-      <th>Bikes</th>
-      <th>Docks</th>
-      <th>Status</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    @for (station of stations(); track station.code) {
+<div class="sheet">
+  <table [style.--max]="maxCapacity()">
+    <caption class="visually-hidden">Stations, with available bikes and docks</caption>
+    <thead>
       <tr>
-        <td>{{ station.name }}</td>
-        <td><code>{{ station.code }}</code></td>
-        <td>{{ station.availableBikes }}</td>
-        <td>{{ station.capacity }}</td>
-        <td>
-          @if (station.outOfService) {
-            <span class="out-of-service">out of service</span>
-          } @else if (station.availableBikes === 0) {
-            <span class="empty">no bikes</span>
-          } @else {
-            <span class="open">open</span>
-          }
-        </td>
-        <td>
-          <button
-            type="button"
-            [disabled]="busy()"
-            (click)="rent.emit(station.code)"
-          >
-            Rent
-          </button>
-        </td>
+        <th scope="col">Station</th>
+        <th scope="col">Bikes and docks</th>
+        <th scope="col">Status</th>
+        <th scope="col"><span class="visually-hidden">Action</span></th>
       </tr>
-    } @empty {
-      <tr>
-        <td colspan="6">no stations loaded</td>
-      </tr>
-    }
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      @for (station of stations(); track station.code) {
+        @let empty = !station.outOfService && station.availableBikes === 0;
+        <tr [class.out]="station.outOfService" [class.empty]="empty">
+          <td class="name">
+            <span class="place">
+              <span class="station-name">{{ station.name }}</span>
+              <code>{{ station.code }}</code>
+            </span>
+          </td>
+          <td>
+            <div class="occupancy">
+            <span class="strip" aria-hidden="true">
+              @for (bike of docks(station); track $index) {
+                <i [class.bike]="bike"></i>
+              }
+            </span>
+            <span class="counts">
+              <strong>{{ station.availableBikes }}</strong>
+              {{ station.availableBikes === 1 ? 'bike' : 'bikes' }},
+              {{ station.capacity }} docks
+            </span>
+            </div>
+          </td>
+          <td class="status">
+            @if (station.outOfService) {
+              <span class="state state-out">Out of service</span>
+            } @else if (empty) {
+              <span class="state state-empty">No bikes</span>
+            } @else {
+              <span class="state state-open">Open</span>
+            }
+          </td>
+          <td class="action">
+            <button
+              type="button"
+              [class.secondary]="!station.rentable"
+              [disabled]="busy()"
+              (click)="rent.emit(station.code)"
+            >
+              Rent<span class="visually-hidden"> at {{ station.name }}</span>
+            </button>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="4" class="empty-row">
+            {{ busy() ? 'Loading stations' : 'No stations loaded. Check that rentals is running on port 8080, then refresh.' }}
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
