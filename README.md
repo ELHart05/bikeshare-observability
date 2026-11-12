@@ -2,6 +2,13 @@
 
 A small bike-share system, two Spring Boot services and an Angular UI, instrumented end to end with OpenTelemetry. One click in the browser produces one trace across three processes. The structured logs of every process carry the same trace id, the rentals service publishes business metrics, and the Collector strips personal and host data before anything is stored. Everything runs locally: the services on the host, the telemetry backends in Docker.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/ui-dark.png">
+  <img src="docs/images/ui-light.png" alt="The UI: six stations with a dock strip each, one active rental, and the last action with its trace id and a link to Jaeger" width="1440">
+</picture>
+
+The UI after one rental: each station's docks, the rental in progress, and the trace id of the last click, one link away from Jaeger.
+
 ## Architecture
 
 ```mermaid
